@@ -5,97 +5,40 @@
 #include <iostream>
 #include <cstdlib>
 #include "Button.h"
+#include <vector>
 
 #ifndef MENU_H
 #define MENU_H
-/*class Menu {
-    public:
-    Menu();
-    void display(sf::RenderWindow& window);
-
-    private:
-
-
-};
-void drawMenu(sf::RenderWindow& window) {
-    // Dimensions du menu
-    sf::RectangleShape menu(sf::Vector2f(window.getSize().x/2.5, 200));
-    menu.setFillColor(sf::Color(0, 0, 250)); // Couleur du menu
-    menu.setPosition(0, window.getSize().y - 200); // En bas à gauche de l'écran
-
-    // Options de menu
-    sf::Font font;
-    if (!font.loadFromFile("arial.ttf")) { // Assurez-vous d'avoir un fichier arial.ttf dans le même répertoire
-        std::cerr << "Erreur : Impossible de charger la police !" << std::endl;
-        return;
-    }
-    sf::RectangleShape boutonArcher(sf::Vector2f(200, 50));
-    sf::RectangleShape boutonMage(sf::Vector2f(200, 50));
-    sf::RectangleShape boutonPerceArmure(sf::Vector2f(200, 50));
-
-    // Position des boutons
-    boutonArcher.setPosition(50, 500);
-    boutonMage.setPosition(300, 500);
-    boutonPerceArmure.setPosition(550, 500);
-
-    // Couleurs des boutons
-    boutonArcher.setFillColor(sf::Color(150, 150, 255));
-    boutonMage.setFillColor(sf::Color(255, 150, 150));
-    boutonPerceArmure.setFillColor(sf::Color(150, 255, 150));
-
-    // Textes des boutons
-    sf::Font font;
-    sf::Text textArcher("Tour d'archer", font, 20);
-    sf::Text textMage("Tour de mage", font, 20);
-    sf::Text textPerceArmure("Tour perce-armure", font, 20);
-
-
-    adjustTextToButton(textArcher, boutonArcher);
-    adjustTextToButton(textMage, boutonMage);
-    adjustTextToButton(textPerceArmure, boutonPerceArmure);
-
-
-
-    window.draw(menu);
-    window.draw(boutonArcher);
-    window.draw(boutonMage);
-    window.draw(boutonPerceArmure);
-    window.draw(textArcher);
-    window.draw(textMage);
-    window.draw(textPerceArmure);
-
-
-}*/
-
-// Classe pour gérer un bouton
 class Button {
 private:
     sf::RectangleShape shape;
-    sf::Text text;
+    sf::Texture texture;
+    sf::Sprite sprite;
 
 public:
     // Constructeur
-    Button(float x, float y, float width, float height, const sf::Font& font, const std::string& label, sf::Color bgColor, sf::Color textColor) {
+     Button(float x, float y, float width, float height, const std::string& textureFile, sf::Color bgColor) {
         shape.setPosition(x, y);
         shape.setSize(sf::Vector2f(width, height));
-        shape.setFillColor(bgColor);
+         shape.setFillColor(bgColor);
 
-        text.setFont(font);
-        text.setString(label);
-        text.setCharacterSize(20);
-        text.setFillColor(textColor);
 
-        sf::FloatRect textBounds = text.getLocalBounds();
-        text.setPosition(
-            x + (width - textBounds.width) / 2,
-            y + (height - textBounds.height) / 2 - 5
-        );
+
+        if (!texture.loadFromFile(textureFile)) {
+            std::cerr << "Erreur : Impossible de charger la texture '" << textureFile << "'" << std::endl;
+            exit(-1); // Gestion d'erreur
+        }
+
+        sprite.setTexture(texture);
+
+        // Ajuster et centrer le sprite dans le bouton
+        adjustSpriteToButton(sprite, shape);
     }
 
     // Dessiner le bouton
     void draw(sf::RenderWindow& window) const {
-        window.draw(shape);
-        window.draw(text);
+        window.draw(shape);   // Dessiner la forme
+        window.draw(sprite);  // Dessiner le sprite
     }
 
     // Vérifier si un point est à l'intérieur du bouton (pour les clics)
@@ -112,16 +55,23 @@ private:
     bool isOpen; // Indique si le menu est ouvert
 
 public:
+    enum SelectedButton { None, Archer, Mage, Armor };
+    SelectedButton selected = None;
+
     // Constructeur
-    Menu() : isOpen(false) {
+    Menu(float screenWidth, float screenHeight) : isOpen(false), selected(None) {
         if (!font.loadFromFile("arial.ttf")) {
             std::cerr << "Erreur : Impossible de charger la police 'arial.ttf'" << std::endl;
             exit(-1);
         }
 
-        buttons[0] = new Button(100, 200, 200, 50, font, "Tour d'archer", sf::Color(150, 150, 255), sf::Color::White);
-        buttons[1] = new Button(100, 300, 200, 50, font, "Tour de mage", sf::Color(255, 150, 150), sf::Color::White);
-        buttons[2] = new Button(100, 400, 200, 50, font, "Tour perce-armure", sf::Color(150, 255, 150), sf::Color::White);
+        // Positionnement dynamique basé sur la taille de l'écran
+
+        float yStart = screenHeight; // Commence au milieu de l'écran en Y
+
+        buttons[0] = new Button(0, yStart - 150, 150, 150, "archer_level_1.png", sf::Color::Transparent);
+        buttons[1] = new Button(150, yStart - 150, 150, 150, "wizard_level_1.png", sf::Color::Transparent);
+        buttons[2] = new Button(300, yStart - 150, 150, 150, "knight_level_1.png", sf::Color::Transparent);
     }
 
     // Destructeur
@@ -146,16 +96,19 @@ public:
     }
 
     // Gérer les clics si le menu est ouvert
-    void handleClick(float mouseX, float mouseY) const {
+    void handleClick(float mouseX, float mouseY) {
         if (isOpen) {
             if (buttons[0]->isClicked(mouseX, mouseY)) {
-                std::cout << "Bouton 'Tour d'archer' cliqué !" << std::endl;
+                selected = Archer;
+                std::cout << "Tour d'Archer sélectionnée !" << std::endl;
             }
             if (buttons[1]->isClicked(mouseX, mouseY)) {
-                std::cout << "Bouton 'Tour de mage' cliqué !" << std::endl;
+                selected = Mage;
+                std::cout << "Tour de Mage sélectionnée !" << std::endl;
             }
             if (buttons[2]->isClicked(mouseX, mouseY)) {
-                std::cout << "Bouton 'Tour perce-armure' cliqué !" << std::endl;
+                selected = Armor;
+                std::cout << "Tour perce-armure sélectionnée !" << std::endl;
             }
         }
     }
@@ -163,6 +116,11 @@ public:
     // Vérifier si le menu est ouvert
     bool isMenuOpen() const {
         return isOpen;
+    }
+
+    // Retourner le bouton sélectionné
+    SelectedButton getSelectedButton() const {
+        return selected;
     }
 };
 

@@ -7,34 +7,51 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-void adjustTextToButton(sf::Text &text, const sf::Shape &button) {
-    const float padding = 10.0f; // Marge entre le texte et les bords du bouton
-
+void adjustSpriteToButton(sf::Sprite& sprite, const sf::Shape& button, float padding = 10.0f) {
     // Dimensions du bouton
     sf::FloatRect buttonBounds = button.getGlobalBounds();
 
-    // Ajustement de la taille du texte
-    while (true) {
-        sf::FloatRect textBounds = text.getGlobalBounds();
+    // Dimensions du sprite avant mise à l'échelle
+    sf::FloatRect spriteBounds = sprite.getLocalBounds();
 
-        // Vérifie si le texte dépasse les limites du bouton
-        if (textBounds.width + padding < buttonBounds.width &&
-            textBounds.height + padding < buttonBounds.height) {
-            break;
-            }
+    // Vérifier que le sprite n'a pas de dimensions nulles
+    if (spriteBounds.width > 0 && spriteBounds.height > 0) {
+        // Calcul des facteurs d'échelle pour que le sprite englobe le bouton avec un padding
+        float scaleX = (buttonBounds.width + padding * 2) / spriteBounds.width;
+        float scaleY = (buttonBounds.height + padding * 2) / spriteBounds.height;
 
-        // Réduit la taille de la police si le texte est trop grand
-        text.setCharacterSize(text.getCharacterSize() - 1);
-
-        if (text.getCharacterSize() <= 5) { // Éviter une taille trop petite
-            break;
-        }
+        // Appliquer l'échelle au sprite
+        sprite.setScale(scaleX, scaleY);
     }
 
-    // Centrage du texte dans le bouton
-    text.setPosition(
-        buttonBounds.left + (buttonBounds.width / 2.0f) - (text.getGlobalBounds().width / 2.0f),
-        buttonBounds.top + (buttonBounds.height / 2.0f) - (text.getGlobalBounds().height / 1.8f)
+    // Centrer le sprite autour du bouton
+    sprite.setPosition(
+        buttonBounds.left - padding,
+        buttonBounds.top - padding
+    );
+}
+
+void adjustTextureToSprite(sf::Sprite& sprite, const sf::Sprite& button, float padding = 10.0f) {
+    // Dimensions du bouton
+    sf::FloatRect buttonBounds = button.getGlobalBounds();
+
+    // Dimensions du sprite avant mise à l'échelle
+    sf::FloatRect spriteBounds = sprite.getLocalBounds();
+
+    // Vérifier que le sprite n'a pas de dimensions nulles
+    if (spriteBounds.width > 0 && spriteBounds.height > 0) {
+        // Calcul des facteurs d'échelle pour que le sprite englobe le bouton avec un padding
+        float scaleX = (buttonBounds.width + padding * 2) / spriteBounds.width;
+        float scaleY = (buttonBounds.height + padding * 2) / spriteBounds.height;
+
+        // Appliquer l'échelle au sprite
+        sprite.setScale(scaleX, scaleY);
+    }
+
+    // Centrer le sprite autour du bouton
+    sprite.setPosition(
+        buttonBounds.left - padding,
+        buttonBounds.top - padding
     );
 }
 

@@ -7,77 +7,46 @@
 #include "Button.h"
 #include <iostream>
 #include <cstdlib>
-
-
-
-void CréerBouton(int Xsize, int Ysize, int posX, int posY) {
-
-}
+#include <vector>
 
 
 int main() {
+    // Taille dynamique de la fenêtre (pleine écran)
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    sf::RenderWindow window(sf::VideoMode(desktop.width, desktop.height), "Menu Dynamique", sf::Style::Fullscreen);
 
-    sf::VideoMode mode(1920, 1080, 32);
-    if (mode.isValid()) {
-        std::cout << "Le mode vidéo n'est pas valide !" << std::endl;
 
+    // Création du menu avec la taille d'écran
+    Menu menu(desktop.width, desktop.height);
+
+    // Chargement des textures pour les sprites
+    sf::Texture textureArcher, textureMage, textureArmor, Tour;
+    if (!textureArcher.loadFromFile("archer_level_1.png") ||
+        !textureMage.loadFromFile("wizard_level_1.png") ||
+        !textureArmor.loadFromFile("knight_level_1.png")||
+        !Tour.loadFromFile("PlaceForTower2.png")){
+        std::cerr << "Erreur : Impossible de charger les textures !" << std::endl;
+        return -1;
     }
-    sf::RenderWindow window(mode, "Menu déroulant", sf::Style::Fullscreen);
+
+    // Création des sprites correspondants
+    sf::Sprite spriteArcher(textureArcher);
+    sf::Sprite spriteMage(textureMage);
+    sf::Sprite spriteArmor(textureArmor);
+    sf::Sprite Plac_Tour(Tour); 
 
 
-
-    /*bool showMenu = false; // Indicateur pour afficher ou cacher le menu
-
-    while (window.isOpen()) {
-        sf::Event event;
-
-        // Gestion des événements
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-
-            if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    showMenu = true; // Afficher le menu au clic gauche
-                }
-                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                if (boutonArcher.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                    std::cout << "Bouton 'Tour d'archer' cliqué !" << std::endl;
-                }
-                if (boutonMage.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                    std::cout << "Bouton 'Tour de mage' cliqué !" << std::endl;
-                }
-                if (boutonPerceArmure.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                    std::cout << "Bouton 'Tour perce-armure' cliqué !" << std::endl;
-                }
-            }
-
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Escape) {
-                    showMenu = false; // Cacher le menu avec Échap
-                }
-            }
-        }
-
-        // Effacer l'écran
-        window.clear(sf::Color(50, 50, 50));
-
-        // Afficher le menu si nécessaire
-        if (showMenu) {
-            drawMenu(window);
-        }
-
-        // Afficher le contenu
-        window.display();
-
-    }*/
-    Menu menu;
+    // Liste pour stocker les sprites placés
+    std::vector<sf::Sprite> placedSprites;
+    Plac_Tour.setPosition(200.0f, 150.0f);
+    Plac_Tour.setScale(2.0f, 2.0f);
 
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
+
             }
 
             // Ouvrir/fermer le menu avec un clic droit
@@ -92,11 +61,40 @@ int main() {
                     menu.handleClick(mousePos.x, mousePos.y);
                 }
             }
+
+            // Placer un sprite sur clic gauche si un bouton a été sélectionné
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                Menu::SelectedButton selected = menu.getSelectedButton();
+
+                if (selected != Menu::None) {
+
+                    if (selected == Menu::Archer) Plac_Tour.setTexture(textureArcher);
+                    if (selected == Menu::Mage) Plac_Tour.setTexture(textureMage);
+                    if (selected == Menu::Armor) Plac_Tour.setTexture(textureArmor);
+                    window.draw(Plac_Tour);
+
+
+
+                    placedSprites.push_back(Plac_Tour);
+
+
+                    std::cout << "Sprite placé à (" << mousePos.x << ", " << mousePos.y << ")" << std::endl;
+                }
+            }
         }
 
         // Affichage
         window.clear(sf::Color::Black);
         menu.draw(window);
+        window.draw(Plac_Tour);
+        window.display();
+
+        // Dessiner les sprites placés
+        for (const auto& sprite : placedSprites) {
+            window.draw(sprite);
+        }
+
         window.display();
     }
 
