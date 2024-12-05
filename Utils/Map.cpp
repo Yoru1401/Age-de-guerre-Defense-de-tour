@@ -29,8 +29,8 @@ Map::Map(int rows, int cols, const std::string& tileTexturePath, const std::stri
 
 // Draw tiles on the map
 void Map::drawTiles(sf::RenderWindow& window) {
-    for (int y = 0; y < rows; ++y) {
-        for (int x = 0; x < cols; ++x) {
+    for (int y = 0; y < rows +1; ++y) {
+        for (int x = 0; x < cols +1; ++x) {
             int tileIndex = computeTileIndex(y, x);
             sf::IntRect subImageRect((tileIndex % 4) * 16, (tileIndex / 4) * 16, 16, 16);
             tileSprite.setTextureRect(subImageRect);

@@ -26,7 +26,7 @@ int main() {
     sf::Clock clock;
 
     // Charger la carte
-    Map map(MAP_ROWS + 1, MAP_COLS + 1, "Assets/Tile.png", "Assets/emptyTexture.png");
+    Map map(MAP_ROWS, MAP_COLS, "Assets/Tile.png", "Assets/emptyTexture.png");
     WaveManager waveManager(2.f, 5, sf::Vector2f(0.f, 0.f)); // Spawn toutes les 2s, 5 ennemis par vague
 
 
@@ -35,8 +35,8 @@ int main() {
     sf::View view;
 
     // Calcul de la taille totale de la carte
-    float mapWidth = MAP_COLS * TILE_SIZE;
-    float mapHeight = MAP_ROWS * TILE_SIZE;
+    float mapWidth = (MAP_COLS+1) * TILE_SIZE;
+    float mapHeight = (MAP_ROWS+1) * TILE_SIZE;
 
     // Initialiser la vue pour afficher toute la carte
     view.setSize(mapWidth, mapHeight);
@@ -110,9 +110,6 @@ int main() {
                     view.zoom(zoomFactor);
                     zoom += zoomFactor < 1 ? 1 : -1;
                 }
-
-
-                std::cout << "zoom = " << zoom << std::endl;
             }
 
             // Gestion du clic droit pour déplacer la carte
@@ -151,9 +148,9 @@ int main() {
             float halfHeight = viewSize.y / 2.0f;
 
             float leftBound = halfWidth;
-            float rightBound = (MAP_COLS * TILE_SIZE) - halfWidth;
+            float rightBound = ((MAP_COLS + 1) * TILE_SIZE) - halfWidth;
             float topBound = halfHeight;
-            float bottomBound = (MAP_ROWS * TILE_SIZE) - halfHeight;
+            float bottomBound = ((MAP_ROWS + 1) * TILE_SIZE) - halfHeight;
 
             // Corriger les positions pour rester dans les limites
             if (rightBound < leftBound) rightBound = leftBound;  // Cas rare de vue plus grande que la carte
