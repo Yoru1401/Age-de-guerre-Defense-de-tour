@@ -63,25 +63,34 @@ int main() {
             }
 
             // Placer un sprite sur clic gauche si un bouton a été sélectionné
-            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+            if (event.type == sf:: Event ::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 Menu::SelectedButton selected = menu.getSelectedButton();
 
                 if (selected != Menu::None) {
+                    // Vérifier si le sprite "Plac_Tour" a déjà une texture définie
+                    if (Plac_Tour.getTexture() == &Tour) {
+                        // Définir la texture en fonction du bouton sélectionné
+                        if (selected == Menu::Archer) {
+                            Plac_Tour.setTexture(textureArcher);
+                        } else if (selected == Menu::Mage) {
+                            Plac_Tour.setTexture(textureMage);
+                        } else if (selected == Menu::Armor) {
+                            Plac_Tour.setTexture(textureArmor);
+                        }
 
-                    if (selected == Menu::Archer) Plac_Tour.setTexture(textureArcher);
-                    if (selected == Menu::Mage) Plac_Tour.setTexture(textureMage);
-                    if (selected == Menu::Armor) Plac_Tour.setTexture(textureArmor);
-                    window.draw(Plac_Tour);
+                        // Ajouter le sprite dans la liste des sprites placés
 
+                        placedSprites.push_back(Plac_Tour);
 
-
-                    placedSprites.push_back(Plac_Tour);
-
-
-                    std::cout << "Sprite placé à (" << mousePos.x << ", " << mousePos.y << ")" << std::endl;
+                        std::cout << "Tour placée avec succès.\n";
+                    } else {
+                        std::cout << "Une tour est déjà placée ici.\n";
+                    }
                 }
             }
+
+
         }
 
         // Affichage
