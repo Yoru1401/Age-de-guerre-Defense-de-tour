@@ -4,14 +4,21 @@ project(TD)
 set(CMAKE_CXX_STANDARD 20)
 
 # Ajout du fichier source
-add_executable(TD main.cpp
-        Map.cpp
-        Map.h
-        Map.cpp
+add_executable(TD
+        Utils/Map.cpp
+        Utils/Map.h
+        Utils/Enemy.cpp
+        Utils/Enemy.h
+        Utils/Tower.cpp
+        Utils/Tower.h
+        Utils/WaveManager.cpp
+        Utils/WaveManager.h
+
+        main.cpp
 )
 
-configure_file(TilemapDemo_1.png TilemapDemo_1.png COPYONLY)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Assets/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
 # Localisation et liaison de SFML
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
-target_link_libraries(TD sfml-graphics sfml-window sfml-system)
+find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
+target_link_libraries(TD sfml-graphics sfml-window sfml-system sfml-audio)
